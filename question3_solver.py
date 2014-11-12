@@ -39,7 +39,6 @@ class Question3_Solver:
 					break
 		tempword = preword.split('-')
 		preword = tempword[0].split('_')[0]
-		print preword
 		l = len(remword)
 		if l > 1:
 			for x in range(1, l):
@@ -54,44 +53,40 @@ class Question3_Solver:
 		# You also have the probablities of the known character combinations
 		# have to calculate the probablities of the hidden by summing up and the _ character
 		alpha = 'abcdefghijklmnopqrstuvwxyz'
-		max_prob = []
-		index = []
-		for x in range(1,27):
-			max_cpt = max(self.cpt.cpt[x])
-			if self.cpt.cpt[x].index(max_cpt) == 0:
-				max_cpt = max(self.cpt.cpt[x][1:])
-				max_prob.append(max_cpt)
-				index.append(self.cpt.cpt[x].index(max_cpt)-1)
-			else:
-				max_prob.append(max_cpt)
-				index.append(self.cpt.cpt[x].index(max_cpt)-1)
-		nextchar = ''
-		l = len(dashword)
-		precompute = preword
-		print dashword
-		for x in range(1,l):
-			print x-1, dashword[x-1], x, dashword[x]
-			if dashword[x-1] == '-' and x-1 == 0:
-				if first == '`':
-					pr = pr * max(self.cpt.cpt[0])
-					nextchar = alpha[self.cpt.cpt[0].index(max(self.cpt.cpt[0]))-1]
-					precompute += nextchar
-				else:
-					pr = pr * max_prob[ord(first)-97]
-					nextchar = alpha[index[ord(first)-97]]
-					precompute += nextchar
-			if dashword[x] == '-' and dashword[x-1] == '-' and len(nextchar) > 0:
-				pr = pr * max_prob[ord(nextchar)-97]
-				nextchar = alpha[index[ord(nextchar)-97]]
-				precompute += nextchar
-			else:
-				nextchar = ''
-		if len(nextchar) == 0:
-			nextchar = precompute[len(precompute)-1]
-		for x in range(len(alpha)):
-			temp = pr * self.cpt.conditional_prob(alpha[x], nextchar)
-			
-		return 'e'
+		best_prob = 0
+		best_char = 'a'
+		best_pair = ''
+		best_new = 'a'
+		l = 0
+		while l < len(dashword):
+			if l+1 == len(dashword):
+				best_prob = 0
+				for x in range(len(alpha)):
+					temp = pr * self.cpt.conditional_prob(alpha[x], first) * self.cpt.conditional_prob(last, alpha[x])
+					if temp > best_prob:
+						best_prob = temp
+						best_char = alpha[x]
+				first = best_char
+				best_pair += best_char
+				pr = best_prob
+				l+=1
+			else:				
+				for x in range(len(alpha)):
+					temp = pr * self.cpt.conditional_prob(alpha[x],first)
+					for y in range(len(alpha)):
+						newtemp = temp * self.cpt.conditional_prob(alpha[y], alpha[x])
+						if best_prob < newtemp:
+							best_prob = newtemp
+							best_char = alpha[x]
+							best_new = alpha[y]
+				first = best_char
+				best_pair += best_new + best_char
+				pr = best_prob
+				l+=2
+		m = re.search('_', dashword)
+		print best_pair[m.start()]	
+		result = best_pair[m.start()]
+		return result
 
 """l = len(dashword)
 precompute, postcompute, internal = [], [], []
