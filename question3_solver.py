@@ -3,6 +3,22 @@ import re
 class Question3_Solver:
 	def __init__(self, cpt):
 		self.cpt = cpt;
+		self.hiddencpt = []
+		mycpt = cpt
+		for p in range(2):
+			newcpt = []
+			alpha = '`abcdefghijklmnopqrstuvwxyz'
+			for x in range(len(alpha)):
+				tempcpt = []
+				for y in range(len(alpha)):
+					if p == 0:
+						temp = sum([self.cpt.conditional_prob(alpha[w], alpha[x]) * self.cpt.conditional_prob(alpha[y], alpha[w]) for w in range(len(alpha))])
+					else:
+						temp = sum([mycpt[x][w] * self.cpt.conditional_prob(alpha[y],alpha[w]) for w in range(len(alpha))])
+					tempcpt.append(temp)
+				newcpt.append(tempcpt)
+			mycpt = newcpt
+			self.hiddencpt.append(newcpt)
 	#####################################
 	# ADD YOUR CODE HERE
 	# Pr(x|y) = self.cpt.conditional_prob(x, y);
@@ -55,53 +71,28 @@ class Question3_Solver:
 		alpha = 'abcdefghijklmnopqrstuvwxyz'
 		best_prob = 0
 		best_char = 'a'
-		best_pair = ''
-		best_new = 'a'
-		l = 0
-		while l < len(dashword):
-			if l+1 == len(dashword):
-				best_prob = 0
-				for x in range(len(alpha)):
-					temp = pr * self.cpt.conditional_prob(alpha[x], first) * self.cpt.conditional_prob(last, alpha[x])
-					if temp > best_prob:
-						best_prob = temp
-						best_char = alpha[x]
-				first = best_char
-				best_pair += best_char
-				pr = best_prob
-				l+=1
-			else:				
-				for x in range(len(alpha)):
-					temp = pr * self.cpt.conditional_prob(alpha[x],first)
-					for y in range(len(alpha)):
-						newtemp = temp * self.cpt.conditional_prob(alpha[y], alpha[x])
-						if best_prob < newtemp:
-							best_prob = newtemp
-							best_char = alpha[x]
-							best_new = alpha[y]
-				first = best_char
-				best_pair += best_new + best_char
-				pr = best_prob
-				l+=2
+		l = len(dashword)
+		index = 0
 		m = re.search('_', dashword)
-		print best_pair[m.start()]	
-		result = best_pair[m.start()]
-		return result
+		underscore = m.start()
+		end = l-m.start()-1
+		if first == '`':
+			index = 0
+		else:
+			index = ord(first)-96
+		if last == '`':
+			lastindex = 0
+		else:
+			lastindex = ord(last)-96
+		for x in range(len(alpha)):
+			if m.start() == 0:
+				temp = pr * self.cpt.conditional_prob(alpha[x], first) * self.hiddencpt[end-1][x+1][lastindex]
+			elif m.start()+1 == len(dashword):
+				temp = pr * self.hiddencpt[underscore-1][index][x+1] * self.cpt.conditional_prob(last,alpha[x]) 
+			else:
+				temp = pr * self.hiddencpt[underscore-1][index][x+1] * self.hiddencpt[end-1][x+1][lastindex]
+			if best_prob < temp:
+				best_prob = temp
+				best_char = alpha[x]
+		return best_char
 
-"""l = len(dashword)
-precompute, postcompute, internal = [], [], []
-if dashword[0] == '-':
-precompute = [self.cpt.conditional_prob (x, first) for x in alpha]
-if dashword[len(dashword)-1] == '-':
-postcompute = [self.cpt.conditional_prob (last, x) for x in alpha]
-for x in range(1,l):
-if dashword[x-1] == dashword[x]:
-internal = [self.cpt.conditional_prob(w, y)for w in alpha for y in alpha]
-def calc_SUM(l, given, bp, pr):
-if l == 0:
-if bp < pr:
-bp = pr
-pr = calc_SUM(l-1)
-for x in alpha:
-newtemp += pr * self.cpt.conditional_prob(x, given)
-"""
