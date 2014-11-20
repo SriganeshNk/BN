@@ -27,8 +27,8 @@ class Question2_Solver:
 			for x in range(len(word[1])-1):
 				pr = pr * self.cpt.conditional_prob(word[1][x+1],word[1][x])
 		best_element = ['a', 'a']
-		best_probablity =  pr * self.cpt.conditional_prob('a', word[0][len(word[0])-1]) * self.cpt.conditional_prob('a', 'a') * self.cpt.conditional_prob(word[2][0], 'a')
-		alpha = 'abcdefghijklmnopqrstuvxyz'
+		best_probablity = 0
+		alpha = 'abcdefghijklmnopqrstuvwxyz'
 		for x in range(len(alpha)):
 			temp = pr * self.cpt.conditional_prob(alpha[x], word[0][len(word[0])-1])
 			for y in range(len(alpha)):
